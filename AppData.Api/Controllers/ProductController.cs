@@ -124,13 +124,29 @@ namespace AppData.Api.Controllers
         [HttpPost("delete")]
         public async Task<IActionResult> ProductDelete([FromBody] int productId)
         {
-            var product = await _db.Set<ProductEntity>().SingleOrDefaultAsync(p => p.Id == productId);
+            var product = await _db.Set<ProductEntity>()
+                .Include(p => p.Images)
+                .SingleOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
             {
                 return Conflict("Böyle bir product yok.");
             }
 
+            // Önce fiziksel resim dosyalarını sil
+            if (product.Images != null && product.Images.Any())
+            {
+                foreach (var image in product.Images)
+                {
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, image.Url.TrimStart('/').Replace("/", "\\"));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+
+            // Sonra veritabanından sil (cascade delete ile Images, Comments, CartItems, OrderItems otomatik silinecek)
             bool sildimi = await _dataRepository.DeleteById<ProductEntity>(productId);
 
             return Ok();

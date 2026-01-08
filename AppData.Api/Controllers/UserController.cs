@@ -222,7 +222,7 @@ namespace AppData.Api.Controllers
         }
 
         [HttpPost("toenable")]
-        public async Task<IActionResult> ToEnable(int userId)
+        public async Task<IActionResult> ToEnable([FromBody] int userId)
         {
             var user = await _db.Set<UserEntity>().SingleOrDefaultAsync(u => u.Id == userId);
 

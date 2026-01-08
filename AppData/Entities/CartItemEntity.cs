@@ -47,7 +47,7 @@ namespace AppData.Entities
                 .WithMany()
                 .HasForeignKey(p => p.ProductId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(p => p.Quantity)
                 .IsRequired();
