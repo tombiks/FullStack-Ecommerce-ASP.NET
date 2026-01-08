@@ -1,0 +1,206 @@
+﻿@using AppBusiness.DTOs.ProductDTOs
+@{
+    ViewData["Title"] = "Listing";
+    ViewData["BreadCrumbTitle"] = "Shop";
+    ViewData["BreadCrumbSubtitle"] = "Shop/Organi Shop";
+
+    @model List<ProductCategoriedDTO>
+
+    int count = Model.Count;
+
+    var userRole = User?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    bool isSeller = userRole == "Seller";
+}
+
+<partial name="Partials/BreadCrumb" />
+<!-- Product Section Begin -->
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-5">
+                <div class="sidebar">
+                    <div class="sidebar__item">
+                        <h4>Categories</h4>
+                        <ul>
+                            @await Component.InvokeAsync("CategoryList", new { viewName = "Listing" })
+                        </ul>
+                    </div>                    
+                    
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-7">
+               
+                <div class="filter__item">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-5">
+                            <div class="filter__sort">
+                                <span>Sort By</span>
+                                <select>
+                                    <option value="0">Default</option>
+                                    <option value="0">Default</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4">
+                            <div class="filter__found">
+                                <h6><span>@count</span> Products found</h6>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-3">
+                            <div class="filter__option">
+                                <span class="icon_grid-2x2"></span>
+                                <span class="icon_ul"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    @foreach (var product in Model) 
+                    {                    
+                       <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                           <div class="product__item">
+                               <div class="product__item__pic set-bg" data-setbg="@($"https://localhost:7201{product.ImageUrl}")">
+                                   @if (!isSeller)
+                                   {
+                                       <ul class="product__item__pic__hover">
+                                           <li><a href="javascript:void(0)" onclick="addToCart(@product.Id)"><i class="fa fa-shopping-cart"></i></a></li>
+                                       </ul>
+                                   }
+                               </div>
+                               <div class="product__item__text">
+                                    <h6><a asp-action="ProductDetail" asp-controller="Product" asp-route-productId="@product.Id">@product.Name</a></h6>
+                                    <h5>$@product.Price.ToString("F2")</h5>
+                               </div>
+                           </div>
+                       </div>                   
+                    }
+                </div>
+                
+                <div class="product__pagination">
+                    <a href="#">1</a>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Product Section End -->
+
+@section Scripts {
+    <style>
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 9999;
+            animation: slideIn 0.2s ease-out;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        @@keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @@keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+    <script>
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.2s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 200);
+            }, 2000);
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/Cart/AddCardItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productId: productId,
+                        userId: 0,
+                        quantity: 1
+                    }),
+                    redirect: 'manual'
+                });
+
+                // Check if redirected (means unauthorized)
+                if (response.type === 'opaqueredirect' || response.status === 0) {
+                    window.location.href = '/Auth/Login';
+                    return;
+                }
+
+                // Check if response URL contains login (means was redirected)
+                if (response.url && response.url.includes('/Auth/Login')) {
+                    window.location.href = '/Auth/Login';
+                    return;
+                }
+
+                if (response.status === 401) {
+                    // Unauthorized - redirect to login
+                    window.location.href = '/Auth/Login';
+                } else if (response.status === 400) {
+                    // Bad request - likely seller trying to add to cart
+                    const errorText = await response.text();
+                    if (errorText.includes('Seller')) {
+                        alert('Sellers cannot add items to cart');
+                    } else {
+                        window.location.href = '/Auth/Login';
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    showNotification('Product Added to Cart');
+
+                    // Update cart count and total without page reload
+                    const cartCountElement = document.getElementById('header-cart-count');
+                    const cartTotalElement = document.getElementById('header-cart-total');
+
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                    }
+                    if (cartTotalElement) {
+                        cartTotalElement.textContent = '$' + data.total.toFixed(2);
+                    }
+                } else {
+                    console.error('Failed to add product to cart');
+                    window.location.href = '/Auth/Login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // If fetch fails due to no authentication, redirect to login
+                window.location.href = '/Auth/Login';
+            }
+        }
+    </script>
+}

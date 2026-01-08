@@ -1,0 +1,107 @@
+﻿@using System.Security.Claims
+@using System.Text.Json
+@using AppBusiness.DTOs.CartDTOs
+@{
+    int cartCount = 0;
+    decimal cartTotal = 0;
+
+    // Only calculate cart if user is authenticated and not a seller
+    if (User?.Identity?.IsAuthenticated == true)
+    {
+        var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+        if (userRole != "Seller")
+        {
+            var cartListJson = Context.Request.Cookies["cartList"];
+            var cartList = string.IsNullOrEmpty(cartListJson) ? new List<CartShowDTO>() : JsonSerializer.Deserialize<List<CartShowDTO>>(cartListJson);
+            cartCount = cartList?.Count ?? 0;
+            cartTotal = cartList?.Sum(c => c.TotalPrice) ?? 0;
+        }
+    }
+}
+<!-- Header Section Begin -->
+<header class="header">
+    <div class="header__top">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="header__top__left">
+                        <ul>
+                            <li><i class="fa fa-envelope"></i> tncybaktir@gmail.com</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="header__top__right">
+                        <div class="header__top__right__social">
+                            <a href="https://github.com/tombiks" target="_blank"><i class="fa fa-github"></i> github.com/tombiks</a>
+                        </div>
+                        @if (User?.Identity?.IsAuthenticated is true)
+                        {
+                            var userName = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Name)?.Value ?? "";
+                            var userSurname = User.FindFirst("Surname")?.Value ?? "";
+                            <div class="header__top__right__language">
+                                <div><i class="fa fa-user"></i> @userName @userSurname</div>
+                                <span class="arrow_carrot-down"></span>
+                                <ul>
+                                    <li><a asp-controller="Profile" asp-action="Details">Profile</a></li>
+                                    <li><a asp-controller="Auth" asp-action="Logout">Logout</a></li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="header__top__right__auth">
+                                <a asp-controller="Auth" asp-action="Login"><i class="fa fa-user"></i> Login</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="header__logo">
+                    <a asp-action="Index" asp-controller="Home"><img src="/theme/img/logo.png" alt=""></a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <nav class="header__menu">
+                    <ul>
+                        <li class="active"><a asp-action="Index" asp-controller="Home">Home</a></li>
+                        <li><a asp-action="AboutUs" asp-controller="Home">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-lg-3">
+                @if (User?.Identity?.IsAuthenticated is true)
+                {
+                    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                    if (userRole != "Seller")
+                    {
+                        <div class="header__cart">
+                            <ul>
+                                <li><a asp-action="Index" asp-controller="Cart"><i class="fa fa-shopping-bag"></i> <span id="header-cart-count">@cartCount</span></a></li>
+                            </ul>
+                            <div class="header__cart__price">Total: <span id="header-cart-total">$@(cartTotal.ToString("F2"))</span></div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="header__cart">
+                        <ul>
+                            <li><a asp-action="Index" asp-controller="Cart"><i class="fa fa-shopping-bag"></i> <span id="header-cart-count">@cartCount</span></a></li>
+                        </ul>
+                        <div class="header__cart__price">Total: <span id="header-cart-total">$@(cartTotal.ToString("F2"))</span></div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="humberger__open">
+            <i class="fa fa-bars"></i>
+        </div>
+    </div>
+</header>
+<!-- Header Section End -->

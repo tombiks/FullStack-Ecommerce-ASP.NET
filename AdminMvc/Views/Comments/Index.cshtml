@@ -1,0 +1,122 @@
+@using AppBusiness.DTOs.CommentDTOs
+@model List<CommentAdminDTO>
+
+@{
+    ViewData["Title"] = "Waiting Comments";
+}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Waiting for Approval Comments</h1>
+    <p class="mb-4">Manage user comments waiting for approval</p>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Comments List</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="commentsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product ID</th>
+                            <th>Product Name</th>
+                            <th>User ID</th>
+                            <th>User Name</th>
+                            <th>Comment</th>
+                            <th>Stars</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var comment in Model)
+                            {
+                                <tr>
+                                    <td>@comment.Id</td>
+                                    <td>@comment.ProductId</td>
+                                    <td>@comment.ProductName</td>
+                                    <td>@comment.UserId</td>
+                                    <td>@comment.UserName</td>
+                                    <td>@comment.Text</td>
+                                    <td>
+                                        @for (int i = 0; i < comment.StarCount; i++)
+                                        {
+                                            <i class="fas fa-star" style="color: #f39c12;"></i>
+                                        }
+                                        @for (int i = comment.StarCount; i < 5; i++)
+                                        {
+                                            <i class="far fa-star" style="color: #ccc;"></i>
+                                        }
+                                        <span>(@comment.StarCount/5)</span>
+                                    </td>
+                                    <td>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <form asp-action="Confirm" method="post" style="display: inline;">
+                                            <input type="hidden" name="commentId" value="@comment.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this comment?');">
+                                                <i class="fas fa-check"></i> Confirm
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" method="post" style="display: inline;">
+                                            <input type="hidden" name="commentId" value="@comment.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this comment?');">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center">No comments waiting for approval</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#commentsTable').DataTable({
+                "order": [[7, "desc"]], // Sort by date descending
+                "pageLength": 10
+            });
+        });
+    </script>
+}

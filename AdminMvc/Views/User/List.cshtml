@@ -1,0 +1,121 @@
+﻿@using AppBusiness.DTOs.UserDTOs
+@model List<UserListDTO>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">User Table</h1>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">All Users </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Role</th>
+                            <th>Start date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Role</th>
+                            <th>Start date</th>
+
+                            <th>Delete</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.Name</td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                                <td>@user.CreatedTime</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal-@user.Id">
+                                        <i class="fas fa-edit"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @foreach (var user in Model)
+                {
+                    <div class="modal fade"
+                         id="deleteModal-@user.Id"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-labelledby="deleteModalLabel-@user.Id"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Kullanıcı Sil</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+
+                                <form asp-action="Delete" asp-controller="User" method="post">
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Kapat
+                                        </button>
+                                        <button type="submit" class="btn btn-danger">
+                                            Sil
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->

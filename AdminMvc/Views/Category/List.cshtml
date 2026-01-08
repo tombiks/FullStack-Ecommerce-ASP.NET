@@ -1,0 +1,191 @@
+﻿@using AppBusiness.DTOs.CategoryDTOs
+@model List<CategoryDTO>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Category Table</h1>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">All Categories</h6>
+            <div class="modal fade" id="createModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Kategori Ekle</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form asp-action="Create" asp-controller="Category" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="createCategoryName">Kategori Adı</label>
+                                    <input type="text" name="Name" id="createCategoryName" class="form-control" placeholder="Kategori ismini giriniz..." required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="createIconCssClass">Icon Class (FontAwesome)</label>
+                                    <input type="text" name="IconCssClass" id="createIconCssClass" class="form-control" placeholder="Örn: fas fa-laptop" required />
+                                    <small class="form-text text-muted">FontAwesome icon class'ı girin. Örnek: fas fa-laptop, fas fa-book</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="createColor">Renk</label>
+                                    <input type="color" name="Color" id="createColor" class="form-control" value="#3498db" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                                <button type="submit" class="btn btn-primary">Kaydet</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createModal">
+                <i class="fas fa-plus"></i> Create Category
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Category Id</th>
+                            <th>Icon</th>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Category Id</th>
+                            <th>Icon</th>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var category in Model)
+                        {
+                            <tr>
+                                <td>@category.Id</td>
+                                <td><i class="@category.IconCssClass" style="font-size: 24px; color: @category.Color;"></i></td>
+                                <td>@category.Name</td>
+                                <td>
+                                    <span style="display: inline-block; width: 30px; height: 30px; background-color: @category.Color; border-radius: 4px; border: 1px solid #ddd;"></span>
+                                    <span style="margin-left: 8px;">@category.Color</span>
+                                </td>
+                                <td><button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editModal-@category.Id"><i class="fas fa-edit"></i> Edit</button></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal-@category.Id"><i class="fas fa-trash"></i> Delete</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Modals -->
+                @foreach (var category in Model)
+                {
+                    <!-- Edit Modal-->
+                    <div class="modal fade" id="editModal-@category.Id" tabindex="-1" role="dialog" aria-labelledby="editModalLabel-@category.Id" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel-@category.Id">Kategori Edit</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form asp-action="Edit" asp-controller="Category" method="post">
+                                    <div class="modal-body">
+                                        <input type="hidden" name="Id" value="@category.Id" />
+                                        <div class="form-group">
+                                            <label for="editName-@category.Id">Kategori Adı</label>
+                                            <input type="text" name="Name" id="editName-@category.Id" class="form-control" value="@category.Name" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="editIconCssClass-@category.Id">Icon Class (FontAwesome)</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="@category.IconCssClass"></i></span>
+                                                </div>
+                                                <input type="text" name="IconCssClass" id="editIconCssClass-@category.Id" class="form-control" value="@category.IconCssClass" required />
+                                            </div>
+                                            <small class="form-text text-muted">FontAwesome icon class'ı girin. Örnek: fas fa-laptop, fas fa-book</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="editColor-@category.Id">Renk</label>
+                                            <input type="color" name="Color" id="editColor-@category.Id" class="form-control" value="@category.Color" required />
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Edit ModalEnding-->
+
+                    <!-- Delete Modal-->
+                    <div class="modal fade" id="deleteModal-@category.Id" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel-@category.Id" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel-@category.Id">Kategori Sil</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form asp-action="Delete" asp-controller="Category" method="post">
+                                    <div class="modal-body">
+                                        <p>Bu kategoriyi silmek istediğinizden emin misiniz?</p>
+                                        <p><strong>@category.Name</strong></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="categoryId" value="@category.Id" />
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                                        <button type="submit" class="btn btn-danger">Sil</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Delete ModalEnding-->
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+

@@ -1,0 +1,50 @@
+﻿    <!-- Humberger Begin -->
+<div class="humberger__menu__overlay"></div>
+<div class="humberger__menu__wrapper">
+    <div class="humberger__menu__logo">
+        <a href="#"><img src="/theme/img/logo.png" alt=""></a>
+    </div>
+    <div class="humberger__menu__cart">
+        <ul>
+            <li><a asp-action="Index" asp-controller="Cart"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+        </ul>
+        <div class="header__cart__price">item: <span>$150.00</span></div>
+    </div>
+    <div class="humberger__menu__widget">
+        @if (User?.Identity?.IsAuthenticated is true)
+        {
+            var userName = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Name)?.Value ?? "";
+            var userSurname = User.FindFirst("Surname")?.Value ?? "";
+            <div class="header__top__right__language">
+                <div><i class="fa fa-user"></i> @userName @userSurname</div>
+                <span class="arrow_carrot-down"></span>
+                <ul>
+                    <li><a asp-controller="Profile" asp-action="Details">Profile</a></li>
+                    <li><a asp-controller="Auth" asp-action="Logout">Logout</a></li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="header__top__right__auth">
+                <a asp-controller="Auth" asp-action="Login"><i class="fa fa-user"></i> Login</a>
+            </div>
+        }
+    </div>
+    <nav class="humberger__menu__nav mobile-menu">
+        <ul>
+            <li class="active"><a asp-action="Index" asp-controller="Home">Home</a></li>
+            <li><a asp-action="AboutUs" asp-controller="Home">Contact</a></li>
+        </ul>
+    </nav>
+    <div id="mobile-menu-wrap"></div>
+    <div class="header__top__right__social">
+        <a href="https://github.com/tombiks" target="_blank"><i class="fa fa-github"></i> github.com/tombiks</a>
+    </div>
+    <div class="humberger__menu__contact">
+        <ul>
+            <li><i class="fa fa-envelope"></i> tncybaktir@gmail.com</li>            
+        </ul>
+    </div>
+</div>
+<!-- Humberger End -->    

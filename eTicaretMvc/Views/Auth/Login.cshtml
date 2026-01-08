@@ -1,0 +1,44 @@
+﻿@using AppBusiness.DTOs.AuthDTOs
+@model AuthLoginDTO
+
+@{
+    ViewData["Title"] = "Login";
+    ViewData["BreadCrumbTitle"] = "Auth";
+    ViewData["BreadCrumbSubtitle"] = "Auth/Login";
+
+
+}
+
+
+
+@section Styles {
+    <link rel="stylesheet" href="/theme/css/auth-style.css" asp-append-version="true" />
+}
+
+<partial name="Partials/BreadCrumb" />
+<div class="auth-wrapper">
+    <div class="container">
+        <input type="checkbox" id="check">
+        <div class="login form">
+            <header>Login</header>
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                <input asp-for="Email"  placeholder="Enter your email">
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <input asp-for="Password" placeholder="Enter your password">
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <a asp-area="" asp-controller="Auth" asp-action="ForgotPassword">Forgot password?</a>
+                <input type="submit" class="button" value="Login">
+            </form>
+            <div class="signup">
+                <span class="signup">
+                    Don't have an account?
+                    <a asp-area="" asp-controller="Auth" asp-action="Register">Signup</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <partial name="Partials/Head.cshtml" />
+    @RenderSection("Styles", required: false)
+</head>
+
+<body>    
+    <partial name="Partials/PreLoader.cshtml" />
+    <partial name="Partials/Humberger.cshtml" />
+    <partial name="Partials/Header.cshtml" />
+    <partial name="Partials/HeroSection.cshtml" />  
+    
+    @RenderBody()    
+
+    <partial name="Partials/Footer.cshtml" />
+    <partial name="Partials/JavaScripts.cshtml" />
+    @RenderSection("Scripts", required: false)
+
+    <style>
+        @@keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @@keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <script>
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.textContent = message;
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background-color: #28a745; color: white; padding: 15px 25px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.2s ease-out; font-weight: bold; font-size: 16px;';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.2s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 200);
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded fired');
+            const newspaperForm = document.getElementById('newspaper-form');
+            console.log('Newspaper form:', newspaperForm);
+
+            if (newspaperForm) {
+                console.log('Newspaper form found, adding listener');
+                newspaperForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('Newspaper form submitted');
+
+                    const formData = new FormData(this);
+                    console.log('Form action:', this.action);
+
+                    try {
+                        const response = await fetch(this.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        console.log('Response status:', response.status);
+                        console.log('Response ok:', response.ok);
+
+                        if (response.ok) {
+                            console.log('Success! Showing notification');
+                            showNotification('Newspaper başvurunuz alındı');
+                            this.reset();
+                        } else {
+                            const errorText = await response.text();
+                            console.error('Failed to subscribe to newspaper:', errorText);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            } else {
+                console.log('Newspaper form NOT found');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

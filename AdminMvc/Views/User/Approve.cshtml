@@ -1,0 +1,136 @@
+﻿@using AppBusiness.DTOs.UserDTOs
+@model List<UserListDTO>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">User Table</h1>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Waiting For Approve</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Role</th>
+                            <th>Start date</th>
+                            <th>Reject</th>
+                            <th>Confirm</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>User Role</th>
+                            <th>Start date</th>
+                            <th>Reject</th>
+                            <th>Confirm</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.Name</td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                                <td>@user.CreatedTime</td>
+
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#rejectModal-@user.Id">
+                                        Reject
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <form asp-action="Confirm" asp-controller="User" method="post">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            Confirm
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @foreach (var user in Model)
+                {
+                    <div class="modal fade"
+                         id="rejectModal-@user.Id"
+                         tabindex="-1"
+                         role="dialog"
+                         aria-hidden="true">
+
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Satıcıyı Reddet</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+
+                                <form asp-action="Reject" asp-controller="User" method="post">
+                                    <div class="modal-body">
+                                        <p>
+                                            <strong>@user.Name</strong> adlı kullanıcıyı reddetmek istiyor musunuz?
+                                        </p>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Kapat
+                                        </button>
+                                        <button type="submit" class="btn btn-danger">
+                                            Reddet
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->

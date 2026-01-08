@@ -1,0 +1,336 @@
+﻿@using AppBusiness.DTOs.ProductDTOs
+@{
+    @model ProductDetailDTO
+
+
+
+    ViewData["Title"] = "Product Detail";
+    ViewData["BreadCrumbTitle"] = "Product";
+    ViewData["BreadCrumbSubtitle"] = $"{Model.Name} Detail";
+
+    var count = Model.CommentText!.Count;
+    int total = 0;
+    decimal starPoint = 0;
+
+    if (count > 0)
+    {
+        foreach (var star in Model.StartCount!)
+        {
+            total += star;
+        }
+        starPoint = (decimal)total / count;
+    }
+
+}
+
+<partial name="Partials/BreadCrumb" />
+
+<!-- Product Details Section Begin -->
+<section class="product-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__pic">
+                    <div class="product__details__pic__item">
+                        <img class="product__details__pic__item--large"
+                             src="@($"https://localhost:7201{Model.MainImgUrl}")" alt="">
+                    </div>
+                    <div class="product__details__pic__slider owl-carousel">
+                        @foreach (var img in Model.ImagesUrls!)
+                        {
+                            <img data-imgbigurl="@($"https://localhost:7201{img}")"
+                                 src="@($"https://localhost:7201{img}")" alt="">
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__text">
+                    <h3>@Model.Name</h3>
+                    <div class="product__details__rating">
+                        <i class="fa fa-star"></i>
+                        <span>@starPoint.ToString("0.0")/5</span>
+                    </div>
+                    <div class="product__details__price">$@Model.Price.ToString("F2")</div>
+                    <p>
+                        @Model.Details
+                    </p>
+                    @{
+                        var userRole = User?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                        bool isSeller = userRole == "Seller";
+                    }
+                    @if (!isSeller)
+                    {
+                        <div class="product__details__quantity">
+                            <div class="quantity">
+                                <div class="pro-qty">
+                                    <input type="text" id="product-quantity" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <a href="javascript:void(0)" onclick="addToCartFromDetail()" class="primary-btn">ADD TO CARD</a>
+                    }                    
+                    <ul>
+                        <li><b>Availability</b> <span>In Stock</span></li>
+                        <li><b>Shipping</b> <span>01 day shipping. <samp>Free pickup today</samp></span></li>                        
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="product__details__tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab"
+                               aria-selected="true">Comments</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabs-1" role="tabpanel">
+                            <div class="product__details__tab__desc">
+                                <h6>Comments</h6>
+
+                                @* Comment Form - Only show if user can comment *@
+                                @* Debug info *@
+                                @if (User?.Identity?.IsAuthenticated != true)
+                                {
+                                    <div class="alert alert-info">
+                                        <p>Please <a asp-action="Login" asp-controller="Auth">login</a> to leave a comment.</p>
+                                    </div>
+                                }
+                                else if (User?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value == "Seller")
+                                {
+                                    <div class="alert alert-warning">
+                                        <p>Sellers cannot leave comments.</p>
+                                    </div>
+                                }
+                                else if (ViewBag.CanComment == false)
+                                {
+                                    <div class="alert alert-info">
+                                        <p>You need to purchase this product before leaving a comment, or you have already commented on this product.</p>                                        
+                                    </div>
+                                }
+
+                                @if (ViewBag.CanComment == true)
+                                {
+                                    <div id="comment-form-container" class="mb-4 p-3" style="background-color: #f8f9fa; border-radius: 5px;">
+                                        <h6>Leave a Comment</h6>
+                                        <form id="comment-form">
+                                            <div class="form-group">
+                                                <label>Rating</label>
+                                                <div class="star-rating">
+                                                    <input type="radio" id="star5" name="star" value="5" required>
+                                                    <label for="star5" title="5 stars">★</label>
+                                                    <input type="radio" id="star4" name="star" value="4">
+                                                    <label for="star4" title="4 stars">★</label>
+                                                    <input type="radio" id="star3" name="star" value="3">
+                                                    <label for="star3" title="3 stars">★</label>
+                                                    <input type="radio" id="star2" name="star" value="2">
+                                                    <label for="star2" title="2 stars">★</label>
+                                                    <input type="radio" id="star1" name="star" value="1">
+                                                    <label for="star1" title="1 star">★</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mt-3">
+                                                <label for="comment-text">Your Comment</label>
+                                                <textarea id="comment-text" class="form-control" rows="4" maxlength="500" placeholder="Write your comment here..." required></textarea>
+                                                <small class="form-text text-muted">Maximum 500 characters</small>
+                                            </div>
+                                            <button type="submit" class="primary-btn mt-2">Submit Comment</button>
+                                        </form>
+                                    </div>
+                                }
+
+                                @* Display Comments *@
+                                @{
+                                    var comments = ViewBag.Comments as List<AppBusiness.DTOs.CommentDTOs.CommentShowDTO>;
+                                }
+                                @if (comments != null && comments.Any())
+                                {
+                                    @foreach (var comment in comments)
+                                    {
+                                        <div class="comment-item mb-3 pb-3 border-bottom">
+                                            <p><strong>@comment.UserName</strong> <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy")</small></p>
+                                            <p>@comment.Text</p>
+                                            <p>
+                                                @for (int i = 0; i < comment.StarCount; i++)
+                                                {
+                                                    <i class="fa fa-star" style="color: #f39c12;"></i>
+                                                }
+                                                @for (int i = comment.StarCount; i < 5; i++)
+                                                {
+                                                    <i class="fa fa-star-o" style="color: #ccc;"></i>
+                                                }
+                                                <span>@comment.StarCount/5</span>
+                                            </p>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p>No comments yet. Be the first to comment!</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <style>
+        /* Star Rating CSS */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            font-size: 2em;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #f39c12;
+        }
+    </style>
+
+    <script>
+        // Debug: Check ViewBag values
+        console.log('ViewBag.CanComment:', @Json.Serialize(ViewBag.CanComment));
+        console.log('User authenticated:', '@(User?.Identity?.IsAuthenticated)');
+        console.log('User role:', '@(User?.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)');
+        console.log('UserID from ViewBag:', @(ViewBag.UserId ?? 0));
+        console.log('ProductID:', @Model.Id);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentForm = document.getElementById('comment-form');
+            if (commentForm) {
+                commentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const starRating = document.querySelector('input[name="star"]:checked');
+                    const commentText = document.getElementById('comment-text').value;
+
+                    if (!starRating) {
+                        alert('Please select a star rating');
+                        return;
+                    }
+
+                    const productId = @Model.Id;
+                    const commentData = {
+                        productId: productId,
+                        userId: 0, // Will be set by backend
+                        text: commentText,
+                        starCount: parseInt(starRating.value)
+                    };
+
+                    try {
+                        const response = await fetch('/Comment/AddComment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(commentData)
+                        });
+
+                        if (response.ok) {
+                            showNotification('Yorum incelemeye gönderildi');
+                            // Hide the comment form
+                            document.getElementById('comment-form-container').style.display = 'none';
+                        } else {
+                            const errorText = await response.text();
+                            if (errorText.includes('cannot comment')) {
+                                alert('You cannot comment on this product. You either haven\'t ordered it or have already commented.');
+                            } else {
+                                alert('Failed to submit comment: ' + errorText);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while submitting your comment');
+                    }
+                });
+            }
+        });
+
+        // Add to cart from product detail page
+        async function addToCartFromDetail() {
+            const quantityInput = document.getElementById('product-quantity');
+            const quantity = parseInt(quantityInput.value) || 1;
+            const productId = @Model.Id;
+
+            if (quantity < 1) {
+                alert('Please enter a valid quantity');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Cart/AddCardItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productId: productId,
+                        userId: 0,
+                        quantity: quantity
+                    }),
+                    redirect: 'manual'
+                });
+
+                // Check if redirected (unauthorized)
+                if (response.type === 'opaqueredirect' || response.status === 0) {
+                    window.location.href = '/Auth/Login';
+                    return;
+                }
+
+                if (response.url && response.url.includes('/Auth/Login')) {
+                    window.location.href = '/Auth/Login';
+                    return;
+                }
+
+                if (response.status === 401) {
+                    window.location.href = '/Auth/Login';
+                } else if (response.status === 400) {
+                    const errorText = await response.text();
+                    if (errorText.includes('Seller')) {
+                        alert('Sellers cannot add items to cart');
+                    } else {
+                        window.location.href = '/Auth/Login';
+                    }
+                } else if (response.ok) {
+                    const data = await response.json();
+                    showNotification('Product Added to Cart');
+
+                    // Update cart count and total
+                    const cartCountElement = document.getElementById('header-cart-count');
+                    const cartTotalElement = document.getElementById('header-cart-total');
+
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                    }
+                    if (cartTotalElement) {
+                        cartTotalElement.textContent = '$' + data.total.toFixed(2);
+                    }
+                } else {
+                    console.error('Failed to add product to cart');
+                    window.location.href = '/Auth/Login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/Auth/Login';
+            }
+        }
+    </script>
+}

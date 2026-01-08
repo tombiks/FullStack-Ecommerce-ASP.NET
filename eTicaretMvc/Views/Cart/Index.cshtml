@@ -1,0 +1,284 @@
+﻿@using AppBusiness.DTOs.CartDTOs
+@model List<CartShowDTO>
+@{
+    ViewData["Title"] = "Shopping Cart";
+    ViewData["BreadCrumbTitle"] = "Shopping Cart";
+    ViewData["BreadCrumbSubtitle"] = "Shopping Cart/Listing";
+
+    decimal totalPrice = 0;
+
+    foreach (var product in Model)
+    {
+        totalPrice += product.TotalPrice;   
+    }
+}
+
+
+<partial name="Partials/BreadCrumb" />
+
+<!-- Shoping Cart Section Begin -->
+<section class="shoping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="shoping__product">Products</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cart in Model)
+                            {
+                                <tr id="cart-row-@cart.ProductId">
+                                    <td class="shoping__cart__item">
+                                        <img src="@cart.ImageUrl" alt="">
+                                        <h5>@cart.ProductName</h5>
+                                    </td>
+                                    <td class="shoping__cart__price" id="price-@cart.ProductId" data-price="@cart.ProductPrice">
+                                        $@cart.ProductPrice.ToString("F2")
+                                    </td>
+                                    <td class="shoping__cart__quantity">
+                                        <div class="quantity">
+                                            <div class="custom-qty-controls" style="display: flex; align-items: center; gap: 10px;">
+                                                <button type="button" class="qty-btn qty-dec" onclick="decreaseQuantity(@cart.ProductId)" style="width: 30px; height: 30px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 18px;">-</button>
+                                                <input type="text" value="@cart.Quantity" id="quantity-@cart.ProductId" readonly style="width: 60px; text-align: center; border: 1px solid #ddd; height: 30px;">
+                                                <button type="button" class="qty-btn qty-inc" onclick="increaseQuantity(@cart.ProductId)" style="width: 30px; height: 30px; border: 1px solid #ddd; background: #f5f5f5; cursor: pointer; font-size: 18px;">+</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="shoping__cart__total" id="total-@cart.ProductId">
+                                        $@cart.TotalPrice.ToString("F2")
+                                    </td>
+                                    <td class="shoping__cart__item__close">
+                                        <span class="icon_close" onclick="deleteCartItem(@cart.ProductId)" style="cursor: pointer;"></span>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__btns">
+                    <a asp-action="Index" asp-controller="Home" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="shoping__continue">
+                    <div class="shoping__discount">
+                        <h5>Discount Codes</h5>
+                        <form action="#">
+                            <input type="text" placeholder="Tuncay dünyanın en iyi yazılımcısıdır yazarsanız bedavaya alırsınız.">
+                            <button type="submit" class="site-btn">APPLY COUPON</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="shoping__checkout">
+                    <h5>Cart Total</h5>
+                    <ul>
+                        <li>Total <span id="cart-grand-total">$@totalPrice.ToString("F2")</span></li>
+                    </ul>
+                    <a href="javascript:void(0)" onclick="completeOrder()" class="primary-btn">Complete Order</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Shoping Cart Section End -->
+
+@section Scripts {
+    <style>
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 9999;
+            animation: slideIn 0.2s ease-out;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        @@keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @@keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+    <script>
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification-popup';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.2s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 200);
+            }, 2000);
+        }
+
+        async function completeOrder() {
+            try {
+                const response = await fetch('/Order/CompleteOrder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    showNotification('Order Completed');
+                    setTimeout(() => {
+                        window.location.href = '/Profile/Details';
+                    }, 1000);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to complete order: ' + errorText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteCartItem(productId) {
+            try {
+                const response = await fetch('/Cart/DeleteCartItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productId)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update header cart count and total
+                    const cartCountElement = document.getElementById('header-cart-count');
+                    const cartTotalElement = document.getElementById('header-cart-total');
+
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                    }
+                    if (cartTotalElement) {
+                        cartTotalElement.textContent = '$' + data.total.toFixed(2);
+                    }
+
+                    // Remove row from table
+                    const row = document.getElementById('cart-row-' + productId);
+                    if (row) {
+                        row.remove();
+                    }
+
+                    // Update cart grand total
+                    const grandTotalElement = document.getElementById('cart-grand-total');
+                    grandTotalElement.textContent = '$' + data.total.toFixed(2);
+
+                    // If cart is empty, reload page to show empty cart message
+                    if (data.count === 0) {
+                        location.reload();
+                    }
+                } else {
+                    console.error('Failed to delete cart item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function increaseQuantity(productId) {
+            const input = document.getElementById('quantity-' + productId);
+            const currentValue = parseInt(input.value);
+            input.value = currentValue + 1;
+            updateCartItem(productId, currentValue + 1);
+        }
+
+        function decreaseQuantity(productId) {
+            const input = document.getElementById('quantity-' + productId);
+            const currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                input.value = currentValue - 1;
+                updateCartItem(productId, currentValue - 1);
+            }
+        }
+
+        async function updateCartItem(productId, quantity) {
+            try {
+                const response = await fetch('/Cart/UpdateCartItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productId: productId,
+                        userId: 0,
+                        quantity: quantity
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update header cart count and total
+                    const cartCountElement = document.getElementById('header-cart-count');
+                    const cartTotalElement = document.getElementById('header-cart-total');
+
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                    }
+                    if (cartTotalElement) {
+                        cartTotalElement.textContent = '$' + data.total.toFixed(2);
+                    }
+
+                    // Update row total price
+                    const priceElement = document.getElementById('price-' + productId);
+                    const price = parseFloat(priceElement.getAttribute('data-price'));
+                    const newTotal = price * quantity;
+                    const totalElement = document.getElementById('total-' + productId);
+                    totalElement.textContent = '$' + newTotal.toFixed(2);
+
+                    // Update cart grand total
+                    const grandTotalElement = document.getElementById('cart-grand-total');
+                    grandTotalElement.textContent = '$' + data.total.toFixed(2);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to update cart item: ' + errorText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+}

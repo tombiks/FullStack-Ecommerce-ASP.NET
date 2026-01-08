@@ -1,0 +1,275 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    
+}
+
+
+<!-- Begin Page Content -->
+<div class="container-fluid">    
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Total Seller -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Seller
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.sellerSayisi</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Buyer -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Buyer
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.buyerSayisi</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Waiting For Approve Seller Users -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Waiting For Approve Seller Users
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.waitingSayisi</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- Waiting For Approve Comments Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="@Url.Action("Index", "Comments")" style="text-decoration: none;">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Waiting For Approve Comments
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.waitingCommentsCount</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-comments fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+
+        <!-- Contact Messages Table -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Contact Messages</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="contactsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.contacts != null)
+                                {
+                                    @foreach (var contact in ViewBag.contacts)
+                                    {
+                                        <tr>
+                                            <td>@contact.Name</td>
+                                            <td>@contact.Email</td>
+                                            <td>@contact.Message</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav aria-label="Contact messages pagination">
+                        <ul class="pagination justify-content-center" id="contactsPagination">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newspaper Subscriptions Table -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Newspaper Subscriptions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="newspapersTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.newspapers != null)
+                                {
+                                    @foreach (var newspaper in ViewBag.newspapers)
+                                    {
+                                        <tr>
+                                            <td>@newspaper.Id</td>
+                                            <td>@newspaper.Email</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <nav aria-label="Newspaper subscriptions pagination">
+                        <ul class="pagination justify-content-center" id="newspapersPagination">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+@section Scripts {
+    <script>
+        // Pagination for Contacts Table
+        const contactsTable = document.getElementById('contactsTable').getElementsByTagName('tbody')[0];
+        const contactRows = Array.from(contactsTable.getElementsByTagName('tr'));
+        const contactsPerPage = 6;
+        let currentContactPage = 1;
+
+        function displayContactsPage(page) {
+            const startIndex = (page - 1) * contactsPerPage;
+            const endIndex = startIndex + contactsPerPage;
+
+            contactRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateContactsPagination();
+        }
+
+        function updateContactsPagination() {
+            const totalPages = Math.ceil(contactRows.length / contactsPerPage);
+            const pagination = document.getElementById('contactsPagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentContactPage ? ' active' : '');
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    currentContactPage = i;
+                    displayContactsPage(i);
+                };
+                li.appendChild(a);
+                pagination.appendChild(li);
+            }
+        }
+
+        // Pagination for Newspapers Table
+        const newspapersTable = document.getElementById('newspapersTable').getElementsByTagName('tbody')[0];
+        const newspaperRows = Array.from(newspapersTable.getElementsByTagName('tr'));
+        const newspapersPerPage = 6;
+        let currentNewspaperPage = 1;
+
+        function displayNewspapersPage(page) {
+            const startIndex = (page - 1) * newspapersPerPage;
+            const endIndex = startIndex + newspapersPerPage;
+
+            newspaperRows.forEach((row, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateNewspapersPagination();
+        }
+
+        function updateNewspapersPagination() {
+            const totalPages = Math.ceil(newspaperRows.length / newspapersPerPage);
+            const pagination = document.getElementById('newspapersPagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentNewspaperPage ? ' active' : '');
+                const a = document.createElement('a');
+                a.className = 'page-link';
+                a.href = '#';
+                a.textContent = i;
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    currentNewspaperPage = i;
+                    displayNewspapersPage(i);
+                };
+                li.appendChild(a);
+                pagination.appendChild(li);
+            }
+        }
+
+        // Initialize pagination on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (contactRows.length > 0) {
+                displayContactsPage(1);
+            }
+            if (newspaperRows.length > 0) {
+                displayNewspapersPage(1);
+            }
+        });
+    </script>
+}

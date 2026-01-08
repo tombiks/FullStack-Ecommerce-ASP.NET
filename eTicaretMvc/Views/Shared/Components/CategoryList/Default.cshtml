@@ -1,0 +1,39 @@
+﻿<style>
+    .categories__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .categories__item:hover {
+        transform: translateY(-5px);
+    }
+
+    .categories__item i {
+        display: block;
+    }
+</style>
+
+<section class="categories">
+    <div class="container">
+        <div class="row">
+            <div class="categories__slider owl-carousel">
+                @foreach (var category in Model)
+                {
+                    <div class="col-lg-3">
+                        <a asp-action="Listing" asp-controller="Home" asp-route-id="@category.Id" style="text-decoration: none;">
+                            <div class="categories__item" style="background-color: @category.Color;">
+                                <i class="@category.IconCssClass" style="font-size: 48px; color: white; margin-bottom: 15px;"></i>
+                                <h5 style="color: white; margin: 0;">@category.Name</h5>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

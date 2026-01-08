@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="AdminMvc/AdminMvc.csproj" />
+  <Project Path="AppBusiness/AppBusiness.csproj" Id="774a9f61-d47e-42cd-960c-9d36dd3bb688" />
+  <Project Path="AppData.Api/AppData.Api.csproj" Id="a476b795-ddcb-4a6d-8f0f-15181a9fdd5a" />
+  <Project Path="AppData/AppData.csproj" />
+  <Project Path="eTicaretMvc/eTicaretMvc.csproj" />
+</Solution>

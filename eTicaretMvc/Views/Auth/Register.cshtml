@@ -1,0 +1,64 @@
+﻿@using AppBusiness.DTOs.AuthDTOs
+@{
+    ViewData["Title"] = "Signup";
+    ViewData["BreadCrumbTitle"] = "Auth";
+    ViewData["BreadCrumbSubtitle"] = "Auth/Signup";
+}
+
+@model AuthRegisterDTO
+
+@section Styles {
+    <link rel="stylesheet" href="/theme/css/auth-style.css" asp-append-version="true" />
+}
+
+<partial name="Partials/BreadCrumb" />
+<div class="auth-wrapper">
+    <div class="container">
+        <div class="login form">            
+            <header>Signup</header>
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+            <form asp-controller="Auth" asp-action="Register" method="post">
+                <input asp-for="Email" placeholder="Enter your email">
+                <span asp-validation-for="Email" class="text-danger"></span>
+
+                <input asp-for="FirstName" placeholder="First Name">
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+
+                <input asp-for="LastName" placeholder="Last Name">
+                <span asp-validation-for="LastName" class="text-danger"></span>
+
+                <input asp-for="Password" placeholder="Create a password">
+                <span asp-validation-for="Password" class="text-danger"></span>
+
+
+                <input asp-for="ConfirmedPassword" placeholder="Confirm your password">
+                <span asp-validation-for="ConfirmedPassword" class="text-danger"></span>
+
+
+                <div class="role-selection">
+                    <label class="role-option">
+                        <input asp-for="Role" type="radio" value="buyer">
+                        <span>Sign up to become a customer.</span>
+                    </label>
+                    <label class="role-option">
+                        <input asp-for="Role" type="radio" value="seller">
+                        <span>Sign up to become a seller.</span>
+                    </label>
+                </div>
+                <span asp-validation-for="Role" class="text-danger"></span>
+
+                <input type="submit" class="button" value="Signup">
+            </form>
+            <div class="signup">
+                <span class="signup">
+                    Already have an account?
+                    <a asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
