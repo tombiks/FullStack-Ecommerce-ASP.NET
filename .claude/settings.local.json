@@ -11,7 +11,8 @@
       "Bash(git commit --amend -m \"$(cat <<''EOF''\nInitial commit: ASP.NET Multi-Role E-Commerce Platform\n\nA full-stack e-commerce platform featuring:\n- JWT Bearer Authentication with role-based access control\n- RESTful API architecture with Swagger documentation\n- Three separate applications (API, Customer Portal, Admin Panel)\n- Entity Framework Core with SQL Server integration\n- Multi-role system (Admin, Seller, Customer)\n- Complete e-commerce features: products, cart, orders, reviews\n- Professional UI with Bootstrap and custom themes\n\nTechnology Stack:\n- ASP.NET Core 8.0\n- Entity Framework Core\n- Microsoft.AspNetCore.Authentication.JwtBearer\n- Swashbuckle.AspNetCore (Swagger)\n- SQL Server\nEOF\n)\")",
       "Bash(git remote:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git pull:*)"
     ]
   }
 }
