@@ -195,7 +195,7 @@ Both MVC applications are configured to connect to the API at `https://localhost
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/aspnet-multi-role-ecommerce.git
+git clone https://github.com/tombiks/FullStack-Ecommerce-ASP.NET
 cd aspnet-multi-role-ecommerce
 ```
 
@@ -312,3 +312,4 @@ For questions or feedback, please use the contact form in the application or ope
 ---
 
 **Note**: This is a complete, fully-functional e-commerce platform with real backend integration. It demonstrates modern ASP.NET Core development practices, clean architecture, and production-ready patterns.
+
